@@ -78,7 +78,7 @@ async def send_weather_message(message: Message, weather_forecast: list[DayWeath
     """Helper method to send weather messages."""
     for day in weather_forecast:
         for i, time in enumerate(day.time):
-            await message.answer(f'Время: {time}, температура: {day.temperature_2m[i]}, осадки: {day.weather_code[i]}')
+            await message.answer(f'Time: {time}, Temperature: {day.temperature_2m[i]}, Forecast: {day.weather_code[i]}')
 
 async def cmd_weather(message: Message, command: CommandObject) -> None:
     """Handler for the /weather command."""
