@@ -1,0 +1,29 @@
+versio: '3.8'
+
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: t_bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./core:/app/core
+      - ./files:/app/files
+    networks:
+      - bot_network
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+networks:
+  bot_network:
+    driver: bridge
