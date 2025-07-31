@@ -1,22 +1,27 @@
 import asyncio
 import logging
+import os
+from dotenv import load_dotenv
 from datetime import datetime
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters.command import Command
-from core.settings import settings # Import file with token and admin ID
+
 from core.utils.commands import set_commands # Import to create menu button
 # Import handlers for start, help and weather commands, for dispatcher processing
 from core.handlers.basic import cmd_start, cmd_help, cmd_weather
 
 logger = logging.getLogger(__name__)
 
+load_dotenv()
+
 async def start_bot(bot: Bot):
     """Notify admin that the bot is running."""
     bot_info = await bot.me()
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    admin_id = os.getenv('ADMIN_ID')
     message_text = (
         f'Bot {bot_info.first_name} is running!\n'
-        f'Admin ID: {settings.bots.admin_id}\n'
+        f'Admin ID: {admin_id}\n'
         f'Current Time: {current_time}\n'
         f'Bot ID: {bot_info.id}\n'
         f'Bot Username: @{bot_info.username}'
@@ -28,9 +33,10 @@ async def stop_bot(bot: Bot):
     """Notify admin that the bot is running."""
     bot_info = await bot.me()
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    admin_id = os.getenv('ADMIN_ID')
     message_text = (
         f'Bot {bot_info.first_name} is stopping!\n'
-        f'Admin ID: {settings.bots.admin_id}\n'
+        f'Admin ID: {admin_id}\n'
         f'Current Time: {current_time}\n'
         f'Bot ID: {bot_info.id}\n'
         f'Bot Username: @{bot_info.username}'
@@ -61,8 +67,9 @@ def register_handlers(dp: Dispatcher):
 async def main() -> None:
     """Main function to start the bot."""
     configure_logging()
+    bot_token = os.getenv('TOKEN')
     # Create an object of the bot class
-    bot = Bot(token=settings.bots.bot_token, parse_mode='HTML')
+    bot = Bot(token=bot_token)
     # Create an object of the dispatcher class it is receiving updates
     dp = Dispatcher()
 
