@@ -3,17 +3,20 @@ Basic handlers for registration
 '''
 from aiogram import Bot
 from aiogram.types import Message
-from aiogram.enums.dice_emoji import DiceEmoji
 from aiogram.filters import CommandObject
 from typing import Optional, Dict, Any
 import logging
+import secrets
+import os
+from dotenv import load_dotenv
 
-from core.settings import settings_geocode
 from core.utils.geocode import Geocode
 from core.utils.weather import WeatherForecast, DayWeather
 from core.utils.util import get_json_data, extract_lat_lon
 
 logger = logging.getLogger(__name__)
+
+load_dotenv()
 
 async def cmd_start(message: Message, bot: Bot):
     """Handler for the /start command."""
@@ -53,6 +56,7 @@ async def cmd_help(message: Message):
 
 async def get_geocode_location(name: str) -> Optional[Dict[str, Any]]:
     """Helper method to get geocode location."""
+    geo_token = os.getenv('GEOCODE_TOKEN')
     data = get_json_data(name + '.json')
     if data:
         lat, lon = extract_lat_lon(data)
@@ -60,7 +64,7 @@ async def get_geocode_location(name: str) -> Optional[Dict[str, Any]]:
             logger.info(f'Geocode location from file for {name} is {lat}, {lon}.')
             return {'address': name, 'lat': lat, 'lon': lon}
 
-    geocode_location = Geocode(url='https://geocode.maps.co', code_search=True, api_key=settings_geocode.geocode_token)
+    geocode_location = Geocode(url='https://geocode.maps.co', code_search=True, api_key=geo_token)
     location = geocode_location.quest(name)
     logger.info(f'Geocode location from API request - {location}')
     if location is None:
