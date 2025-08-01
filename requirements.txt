@@ -2,4 +2,6 @@ aiogram==3.1.1
 python-dotenv==1.0.0
 requests==2.31.0
 dataclasses==0.6
-environs==4.3.0
+environs==5.0.0
+sqlalchemy==1.4.36
+redis==5.2.1
