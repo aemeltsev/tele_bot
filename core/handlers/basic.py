@@ -1,14 +1,19 @@
 '''
 Basic handlers for registration
 '''
+import os
+import logging
+import secrets
+
+from dotenv import load_dotenv
+
 from aiogram import Bot
 from aiogram.types import Message
 from aiogram.filters import CommandObject
 from typing import Optional, Dict, Any
-import logging
-import secrets
-import os
-from dotenv import load_dotenv
+
+from sqlalchemy.orm import Session
+from core.model.models import SessionLocal, User
 
 from core.utils.geocode import Geocode
 from core.utils.weather import WeatherForecast, DayWeather
@@ -18,8 +23,40 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
+# Временное хранилище для токенов
+tokens = {}
+
+def get_db():
+    '''
+    Dependency to get the database session
+    '''
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+async def check_authorization(message: Message):
+    user_id = message.from_user.id
+    db: Session = next(get_db())
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            await message.reply("Sorry you dont have access to this bot.")
+            return False
+        return True
+    except Exception as e:
+        await message.reply(f'Sorry, have some problem - {e}')
+        logger.error(f'Exception with autorization : {e}')
+    finally:
+        db.close()
+
 async def cmd_start(message: Message, bot: Bot):
     """Handler for the /start command."""
+
+    if not await check_authorization(message):
+        return
+
     welcome_message = f"""
     Hello {message.from_user.first_name}! Nice to meet you! \U00002600
     
@@ -36,6 +73,10 @@ async def cmd_start(message: Message, bot: Bot):
 
 async def cmd_help(message: Message):
     """Handler for the /help command."""
+
+    if not await check_authorization(message):
+        return
+
     help_text: str = """
     Here are the available commands and their descriptions:
     
@@ -86,6 +127,10 @@ async def send_weather_message(message: Message, weather_forecast: list[DayWeath
 
 async def cmd_weather(message: Message, command: CommandObject) -> None:
     """Handler for the /weather command."""
+
+    if not await check_authorization(message):
+        return
+
     if command.args is None:
         await message.answer("Error, no arguments passed. Pass the city name.")
         return
@@ -107,3 +152,56 @@ async def cmd_weather(message: Message, command: CommandObject) -> None:
         return
     
     await send_weather_message(message, weather_forecast)
+
+
+async def cmd_login(message: Message) -> None:
+    """Handler for the /login command."""
+    user_id = message.from_user.id
+    db: Session = next(get_db())
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user:
+            await message.answer("You are already logged in.")
+            return
+        
+        # A hash of the token is generated and stored in the temporary `tokens` storage.
+        token = secrets.token_urlsafe(32)
+        token_hash = generate_token_hash(token)
+        tokens[user_id] = token_hash
+        await message.reply(f'Your temporary token:\n {token}\n Use command /signup <token> to login.')
+    except Exception as e:
+        await message.reply(f'An error occurred: {e}')
+        logger.info(f'An error occurred: {e}')
+    finally:
+        db.close()
+
+async def cmd_signup(message: Message, command: CommandObject) -> None:
+    """Handler for the /signup command."""
+    user_id = message.from_user.id
+    token = command.args
+    if not token:
+        await message.reply("Error, token is not passed.")
+        return
+    '''
+    A hash is generated from the token provided by the user and compared with the stored hash. 
+    If the hashes match, the user is authorized.
+    '''
+    token_hash = generate_token_hash(token)
+    if tokens.get(user_id) != token_hash:
+        await message.reply("Error, invalid token.")
+        return
+
+    db: Session = next(get_db())
+    try:
+        user = db.query(User).filter(User.user_id == user_id).first()
+        if not user:
+            user = User(user_id=user_id, token=token_hash)
+            db.add(user)
+            db.commit()
+            await message.reply('You have successfully logged in.')
+        else:
+            await message.reply('You are already logged in.')
+    except Exception as e:
+        await message.reply(f'An error occurred: {e}')
+    finally:
+        db.close()
