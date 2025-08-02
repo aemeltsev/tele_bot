@@ -54,7 +54,7 @@ class Geocode:
         Helper method to save data to a file.
         '''
         try:
-            with open(f'{filename}.json', 'w') as f:
+            with open(f'files/data/{filename}.json', 'w') as f:
                 json.dump(data, f)
         except IOError as e:
             logger.error(f'An error occurred while writing to the file: {e}')

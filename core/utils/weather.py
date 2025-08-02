@@ -57,7 +57,7 @@ class WeatherForecast:
     '''
     str: A string of comma-separated weather parameters to fetch from the API.
     '''
-    cache_file = 'weather_cache.json'
+    cache_file = 'files/data/weather_cache.json'
 
     weather_code_dict_en = {
         0 : 'clear sky \U00002600 ', # ясно 

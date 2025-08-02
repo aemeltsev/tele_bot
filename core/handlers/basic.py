@@ -98,7 +98,7 @@ async def cmd_help(message: Message):
 async def get_geocode_location(name: str) -> Optional[Dict[str, Any]]:
     """Helper method to get geocode location."""
     geo_token = os.getenv('GEOCODE_TOKEN')
-    data = get_json_data(name + '.json')
+    data = get_json_data(f'files/logs/{name}.json')
     if data:
         lat, lon = extract_lat_lon(data)
         if lat is not None and lon is not None:
