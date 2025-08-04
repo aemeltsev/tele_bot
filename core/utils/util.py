@@ -22,3 +22,8 @@ def extract_lat_lon(data: Dict[str, Any]) -> Tuple[Optional[float], Optional[flo
     if data and 'lat' in data and 'lon' in data:
         return data['lat'], data['lon']
     return None, None
+
+
+def generate_token_hash(token: str) -> str:
+    """Generate a SHA-256 hash of the given token."""
+    return hashlib.sha256(token.encode()).hexdigest()

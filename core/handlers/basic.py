@@ -17,7 +17,7 @@ from core.model.models import SessionLocal, User
 
 from core.utils.geocode import Geocode
 from core.utils.weather import WeatherForecast, DayWeather
-from core.utils.util import get_json_data, extract_lat_lon
+from core.utils.util import get_json_data, extract_lat_lon, generate_token_hash
 
 logger = logging.getLogger(__name__)
 
