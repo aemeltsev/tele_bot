@@ -1,0 +1,11 @@
+# docker-compose.override.yml
+version: '3.8'
+
+services:
+  bot:
+    volumes:
+      - .:/app
+    environment:
+      - ENV=development
+    ports:
+      - "5000:5000"
