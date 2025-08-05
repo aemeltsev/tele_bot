@@ -1,8 +1,6 @@
 import requests as req
-import json
-import os
 import logging
-from datetime import datetime, timedelta
+#from datetime import datetime, timedelta
 from dataclasses import dataclass
 from typing import Optional, List, Dict, Any
 
@@ -10,6 +8,9 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class DayWeather:
+    '''
+    A dataclass to hold weather data for specific times of a day.
+    '''
     #0-night(1h), 1-morning(7h), 2-day(14h), 3-evening(19h)
     time:list[str]
     temperature_2m:list[float] 
@@ -51,13 +52,12 @@ class WeatherForecast:
 
     url: str = 'https://api.open-meteo.com/v1/forecast'
     '''
-    str: The base URL for the Open-Meteo API.
+    url: The base URL for the Open-Meteo API.
     '''    
     current: str = 'temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m'
     '''
-    str: A string of comma-separated weather parameters to fetch from the API.
+    current: A string of comma-separated weather parameters to fetch from the API.
     '''
-    cache_file = 'files/data/weather_cache.json'
 
     weather_code_dict_en = {
         0 : 'clear sky \U00002600 ', # ясно 
@@ -102,49 +102,15 @@ class WeatherForecast:
         self.lon = lon
         self.lat = lat
 
-    def _save_to_cache(self, data: dict) -> None:
-        '''
-        Save weather data to a cache file along with the current timestamp.
-
-        Args:
-            data (dict): Data about weather to save.
-        '''
-        cache_data = {
-            'timestamp': datetime.now().isoformat(),
-            'data': data
-        }
-        with open(self.cache_file, 'w') as file:
-            json.dump(cache_data, file)
-
-    def _read_from_cache(self) -> Optional[dict]:
-        '''
-        Read weather data from the cache file if it exists and has not expired.
-
-        Returns:
-            Optional[dict]: Cached weather data if it exists and has not expired, otherwise None.
-        '''
-        if not os.path.exists(self.cache_file):
-            return None
-        try:
-            with open(self.cache_file, 'r') as file:
-                cache_data = json.load(file)
-
-            # Checking for mandatory keys in cached data
-            if 'timestamp' not in cache_data or 'data' not in cache_data:
-                return None
-                
-            timestamp = datetime.fromisoformat(cache_data['timestamp'])
-            if datetime.now() - timestamp < timedelta(hours=12):
-                return cache_data['data']
-        except (json.JSONDecodeError, KeyError, ValueError):
-            # Deleting the cache file in case of errors while reading or parsing
-            os.remove(self.cache_file)
-            return None
-
-
     def _make_request(self, params: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         '''
         Helper method to make the API request and handle the response.
+
+        Args:
+            params (Dict[str, Any]): Parameters for the API request.
+
+        Returns:
+            Optional[Dict[str, Any]]: The JSON response from the API or None if the request fails.
         '''
         response = req.get(url=self.url, params=params)
 
@@ -158,6 +124,13 @@ class WeatherForecast:
     def _create_day_weather(self, forecast: Dict[str, Any], start_index: int) -> DayWeather:
         '''
         Helper method to create a DayWeather object from the forecast data.
+
+        Args:
+            forecast (Dict[str, Any]): The forecast data from the API.
+            start_index (int): The starting index for the hourly data.
+
+        Returns:
+            DayWeather: A DayWeather object containing the weather data for specific times of a day.
         '''
         time_indices = [start_index + 1, start_index + 7, start_index + 14, start_index + 19]
         return DayWeather(
@@ -201,26 +174,28 @@ class WeatherForecast:
                                         or None if the request fails.
         '''
         
-        cached_data = self._read_from_cache()
-        if cached_data:
-            logger.info('Reading weather data from cache...')
-            forecast_data = cached_data
-        else:
-            logger.info('Fetching weather data from Open-Meteo API...')
-            method = {
-                'latitude':str(self.lat),
-                'longitude':str(self.lon),
-                'hourly':self.current,
-                'timezone':'auto',
-                'forecast_days':str(forecast_day)
-            }
-            forecast_data = self._make_request(method)
-            if not forecast_data:
-                return None
-            self._save_to_cache(forecast_data)
-
-        first_day = self._create_day_weather(forecast_data, 0)
-        second_day = self._create_day_weather(forecast_data, 24)
-        third_day = self._create_day_weather(forecast_data, 48)
-
+        logger.info('Fetching weather data from Open-Meteo API...')
+        method = {
+            'latitude':str(self.lat),
+            'longitude':str(self.lon),
+            'hourly':self.current,
+            'timezone':'auto',
+            'forecast_days':str(forecast_day)
+        }
+        return self._make_request(method)
+    
+    def create_forecast(self, forecast: Dict[str, Any]) -> Optional[List[DayWeather]]:
+        '''
+        Create a list of DayWeather objects from the forecast data.
+        
+        Args:
+            forecast (Dict[str, Any]): The forecast data from the API.
+        
+        Returns:
+            Optional[List[DayWeather]]: A list of DayWeather objects or None if the data is invalid.
+        '''
+        first_day = self._create_day_weather(forecast, 0)
+        second_day = self._create_day_weather(forecast, 24)
+        third_day = self._create_day_weather(forecast, 48)
+        
         return [first_day, second_day, third_day]

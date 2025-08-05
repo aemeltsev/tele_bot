@@ -1,5 +1,4 @@
 import requests as req
-import json
 import logging
 from typing import Optional, Dict, Any
 
@@ -48,16 +47,6 @@ class Geocode:
         if response.status_code != req.codes.ok:
             return None
         return response.json()
-    
-    def _safe_to_file(self, data: Dict[str, Any], filename: str) -> None:
-        '''
-        Helper method to save data to a file.
-        '''
-        try:
-            with open(f'files/data/{filename}.json', 'w') as f:
-                json.dump(data, f)
-        except IOError as e:
-            logger.error(f'An error occurred while writing to the file: {e}')
         
     def quest(self, addres: str = 'unknown', lat: float = 0.0, lon: float = 0.0) -> Optional[Dict[str, Any]]:
         '''
@@ -91,7 +80,4 @@ class Geocode:
             out['lat'] = round(float(geo_data.get('lat', 0.0)), 2)
             out['lon'] = round(float(geo_data.get('lon', 0.0)), 2)
 
-        var_dict: dict = out
-        addr = var_dict['address']
-        self._safe_to_file(var_dict, addr) 
         return out
