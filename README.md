@@ -16,9 +16,9 @@ This project is a Telegram bot designed to integrate various API services to pro
 ## Features
 
 - **User Authorization**: Secure access to bot features.
-- **Weather Updates**: Get real-time weather information.
+- **Use Geo API**: Get location information.
+- **Use Weather API**: Get real-time weather information.
 - **Customizable Alerts**: Set up personalized alerts and notifications (In progress).
-- **Multi-language Support**: Interact with the bot in multiple languages (In progress).
 
 ## Installation
 
@@ -28,9 +28,7 @@ This project is a Telegram bot designed to integrate various API services to pro
 - **pip (Python package installer)**: This comes with Python 3.7 and higher, so no additional installation is required.
 - **Telegram Bot API token**: You need to obtain this token from BotFather on Telegram. Follow the instructions [here](https://core.telegram.org/bots#botfather) to create a new bot and get your API token.
 
-
 ### Steps
-
 1. **Clone the repository**:
     ```sh
     git clone https://github.com/aemeltsev/tele_bot.git
