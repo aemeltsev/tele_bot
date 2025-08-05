@@ -1,21 +1,6 @@
-import os
-import json
+import hashlib
+from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, Tuple
-
-def get_json_data(filename: str) -> Optional[Dict[str, Any]]:
-    # Get the list of all files in the current directory
-    files = os.listdir()
-
-    # Find file with the given filename and .JSON extension
-    for file in files:
-        if file == filename and file.endswith('.json'):
-            # Open the file and load the JSON data
-            with open(file, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-            return data
-        
-    # If file not found, return None
-    return None
 
 def extract_lat_lon(data: Dict[str, Any]) -> Tuple[Optional[float], Optional[float]]:
     """Helper method to extract latitude and longitude from JSON data."""
@@ -23,7 +8,10 @@ def extract_lat_lon(data: Dict[str, Any]) -> Tuple[Optional[float], Optional[flo
         return data['lat'], data['lon']
     return None, None
 
-
 def generate_token_hash(token: str) -> str:
     """Generate a SHA-256 hash of the given token."""
     return hashlib.sha256(token.encode()).hexdigest()
+
+def is_forecast_old(timestamp: datetime) -> bool:
+    """Check if the given timestamp is older than 12 hours."""
+    return datetime.now() - timestamp > timedelta(hours=12)
