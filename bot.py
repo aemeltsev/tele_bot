@@ -8,7 +8,7 @@ from aiogram.filters.command import Command
 
 from core.utils.commands import set_commands # Import to create menu button
 # Import handlers for start, help and weather commands, for dispatcher processing
-from core.handlers.basic import cmd_start, cmd_help, cmd_weather
+from core.handlers.basic import cmd_start, cmd_help, cmd_weather, cmd_login, cmd_signup
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ async def start_bot(bot: Bot):
         f'Bot Username: @{bot_info.username}'
     )
     logger.info(f'{message_text}')
-    await bot.send_message(settings.bots.admin_id, text='Bot is running!')
+    #await bot.send_message(settings.bots.admin_id, text='Bot is running!')
 
 async def stop_bot(bot: Bot):
     """Notify admin that the bot is running."""
@@ -39,10 +39,11 @@ async def stop_bot(bot: Bot):
         f'Admin ID: {admin_id}\n'
         f'Current Time: {current_time}\n'
         f'Bot ID: {bot_info.id}\n'
-        f'Bot Username: @{bot_info.username}'
+        f'Bot Username: @{bot_info.username}\n'
+        "#####################################"
     )
     logger.info(f'{message_text}')
-    await bot.send_message(settings.bots.admin_id, text='Bot is stopping!')
+    #await bot.send_message(settings.bots.admin_id, text='Bot is stopping!')
 
 def configure_logging():
     """Configure logging settings."""
@@ -63,6 +64,8 @@ def register_handlers(dp: Dispatcher):
     dp.message.register(cmd_start, Command('start'))
     dp.message.register(cmd_help, Command('help'))
     dp.message.register(cmd_weather, Command('weather'))
+    dp.message.register(cmd_login, Command('login'))
+    dp.message.register(cmd_signup, Command('signup'))
 
 async def main() -> None:
     """Main function to start the bot."""
