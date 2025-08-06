@@ -15,17 +15,24 @@ This project is a Telegram bot designed to integrate various API services to pro
 
 ## Features
 
-- **User Authorization**: Secure access to bot features.
-- **Use Geo API**: Get location information.
-- **Use Weather API**: Get real-time weather information.
-- **Customizable Alerts**: Set up personalized alerts and notifications (In progress).
+- **User Authentication**: Secure access to bot features. It may be better to use a more secure method like OAuth.
+- **Use Geo API**: Get location information by place name.
+- **Use Weather API**: Get real-time weather forecast by place coordinates.
+- **Custom Alerts**: Set up personalized alerts and notifications (in progress).
 
 ## Installation
 
 ### Prerequisites
 
 - **Python 3.7 or higher**: Ensure you have Python installed. You can download it from [python.org](https://www.python.org/downloads/).
+    ```sh
+    sudo apt update
+    sudo apt install python3
+    ```
 - **pip (Python package installer)**: This comes with Python 3.7 and higher, so no additional installation is required.
+    ```sh
+    sudo apt install python3-pip
+    ```
 - **Telegram Bot API token**: You need to obtain this token from BotFather on Telegram. Follow the instructions [here](https://core.telegram.org/bots#botfather) to create a new bot and get your API token.
 
 ### Steps
@@ -41,14 +48,9 @@ This project is a Telegram bot designed to integrate various API services to pro
     python -m venv venv
     ```
     - Activate the virtual environment:
-    - On macOS/Linux:
-      ```sh
-      source venv/bin/activate
-      ```
-    - On Windows:
-      ```sh
-      .\venv\Scripts\activate
-      ```
+    ```sh
+    source venv/bin/activate
+    ```
 
 3. **Install dependencies**:
     - Install the required Python packages using pip:
@@ -58,13 +60,18 @@ This project is a Telegram bot designed to integrate various API services to pro
 
 4. **Set up environment variables**:
     - Create a `.env` file in the root directory of the project.
-    - Add your Telegram Bot API token and other necessary environment variables to the `.env` file:
+    - Add your valid Telegram Bot API token and other necessary environment variables to the `.env` file:
       ```env
       TOKEN=your_telegram_bot_token
       ADMIN_ID=your_admin_id
       GEOCODE_TOKEN=your_geocode_api_service_token
       DB_URL=your_database_path
       ```
+
+5. **Add database file**:
+    ```sh
+    touch core/base/database.db
+    ```
 
 ## Usage
 
