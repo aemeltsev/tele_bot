@@ -7,6 +7,8 @@ This project is a Telegram bot designed to integrate various API services to pro
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
+  - [Directly in Local Machine](#directly-in-local-machine)
+  - [Build and Run Docker Container as a Service](#build-and-run-docker-container-as-a-service)
 - [Configuration](#configuration)
 - [API Integration](#api-integration)
 - [Contributing](#contributing)
@@ -16,8 +18,8 @@ This project is a Telegram bot designed to integrate various API services to pro
 ## Features
 
 - **User Authentication**: Secure access to bot features. It may be better to use a more secure method like OAuth.
-- **Use Geo API**: Get location information by place name.
-- **Use Weather API**: Get real-time weather forecast by place coordinates.
+- **Use Geo API**: Get location information by place name. For detail, please refer to [Geocoding API](https://geocode.maps.co/).
+- **Use Weather API**: Get real-time weather forecast by place coordinates. More informations about weather API can be found in [Weather Forecast API](https://open-meteo.com/en/docs).
 - **Custom Alerts**: Set up personalized alerts and notifications (in progress).
 
 ## Installation
@@ -74,7 +76,7 @@ This project is a Telegram bot designed to integrate various API services to pro
     ```
 
 ## Usage
-
+### Directly in Local Machine
 1. **Start the bot**:
     - Run the following command to start the bot:
     ```sh
@@ -92,6 +94,36 @@ This project is a Telegram bot designed to integrate various API services to pro
 - **`/weather <city>`**: Get the current weather information for the specified city.
 - **`/login`**: Log in to the bot to access personalized features.
 - **`/signup <token>`**: Sign up for the bot using your unique token.
+
+### Build and Run Docker Container as a Service
+
+1. **Build the Docker image**
+    ```sh
+    docker build -t tele_bot -f Dockerfile .
+    ```
+    Docker executes the instructions in the Dockerfile and creates an image with the tele_bot tag
+
+2. **Run the Docker container**
+    ```sh
+    docker run -it --workdir /app -v $(pwd):/app --name tele_bot_container -p 8080:8080 tele_bot python bot.py
+    ```
+    Command starts a container from the tele_bot image. The container is started in interactive mode with a terminal (`-it`). The working directory inside the container is set to `/app`. The current directory on the host is mounted to the `/app` directory inside the container (`-v $(pwd):/app`).
+    The container is given the name `tele_bot_container`. Port `8080` from the container is forwarded to port `8080` on the host. Inside the container, the python bot.py command.
+
+3. **Build and run container**
+    You could also build and run in one go for the first time
+    ```sh
+    docker-compose up -d
+    ```
+    or you could also force build every you want to apply change into the image
+        ```sh
+    docker-compose up -d --build
+    ```
+
+4. **Stop container**
+    ```sh
+    docker-compose down
+    ```
 
 ## Configuration
 
