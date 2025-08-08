@@ -116,7 +116,7 @@ This project is a Telegram bot designed to integrate various API services to pro
     docker-compose up -d
     ```
     or you could also force build every you want to apply change into the image
-        ```sh
+    ```sh
     docker-compose up -d --build
     ```
 
