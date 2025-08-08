@@ -111,6 +111,7 @@ This project is a Telegram bot designed to integrate various API services to pro
     The container is given the name `tele_bot_container`. Port `8080` from the container is forwarded to port `8080` on the host. Inside the container, the python bot.py command.
 
 3. **Build and run container**
+
     You could also build and run in one go for the first time
     ```sh
     docker-compose up -d
